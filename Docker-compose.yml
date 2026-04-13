@@ -1,0 +1,6 @@
+services:
+    sistema-presenca:
+        build: .
+        container_name: monitor_assiduidade
+        volumes:
+            - .:/app
