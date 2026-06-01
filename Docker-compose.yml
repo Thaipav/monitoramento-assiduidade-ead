@@ -1,6 +1,8 @@
 services:
-    sistema-presenca:
-        build: .
-        container_name: monitor_assiduidade
-        volumes:
-            - .:/app
+  sistema-presenca:
+    build: .
+    container_name: monitor_assiduidade
+    volumes:
+      - .:/app
+    tty: true
+    stdin_open: true
