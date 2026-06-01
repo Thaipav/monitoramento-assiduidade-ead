@@ -5,13 +5,12 @@ import os
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from scripts.captura import executar_captura
-
-# LARA : IMPORTA A SUA FUNÇÃO DE RECONHECIMENTO AQUI EMBAIXO!
-# Exemplo: from scripts.reconhecimento import executar_reconhecimento
+from scripts.reconhecimento import executar_reconhecimento
+from scripts.logs import registrar_presenca
 
 INTERVALO_SEGUNDOS = 10  
 
-print("SISTEMA DE ASSIDUIDADE EAD INICIADO!")
+print("SISTEMA DE ASSIDUIDADE EAD INICIADO! BEM-VINDO!")
 print(f"O sistema fará verificações a cada {INTERVALO_SEGUNDOS} segundos.")
 print("Pressione Ctrl + C no terminal para encerrar.")
 
@@ -23,12 +22,16 @@ try:
         sucesso_captura = executar_captura()
        
         if sucesso_captura:
-      
-            # LARA (Aluno A): COLOQUE A SUA CHAMADA DE FUNÇÃO AQUI EMBAIXO!
-            # Substitua o print abaixo pela sua função que analisa o 'temp_frame.jpg'
-        
-            print("Aguardando integração do código de reconhecimento da Lara...")
             
+            match_aluno = executar_reconhecimento()
+            
+            registrar_presenca(match_aluno)
+            
+            if match_aluno:
+                print(f"[STATUS CICLO {ciclo}]: Presença confirmada.")
+            else:
+                print(f"[STATUS CICLO {ciclo}]: Presença NÃO confirmada ou rosto ausente.")
+                
         else:
             print("Ciclo abortado devido a erro na captura.")
             
