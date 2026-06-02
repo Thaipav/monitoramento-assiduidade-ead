@@ -2,3 +2,5 @@ face-recognition
 opencv-python
 pandas
 cmake
+customtkinter
+pillow

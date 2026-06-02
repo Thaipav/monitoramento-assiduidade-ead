@@ -1,45 +1,41 @@
 import time
-import sys
 import os
-
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-
+import shutil
 from scripts.captura import executar_captura
 from scripts.reconhecimento import executar_reconhecimento
 from scripts.logs import registrar_presenca
+from scripts.tela import AppAssiduidade # Importa a tela principal
 
-INTERVALO_SEGUNDOS = 10  
+INTERVALO_MINUTOS = 5 
 
-print("SISTEMA DE ASSIDUIDADE EAD INICIADO! BEM-VINDO!")
-print(f"O sistema fará verificações a cada {INTERVALO_SEGUNDOS} segundos.")
-print("Pressione Ctrl + C no terminal para encerrar.")
+print("SISTEMA INICIADO - SALVANDO NA PASTA CADASTRO")
 
-try:
-    ciclo = 1
-    while True:
-        print(f"--- INICIANDO CICLO Nº {ciclo} ---")
-  
-        sucesso_captura = executar_captura()
-       
-        if sucesso_captura:
-            
-            match_aluno = executar_reconhecimento()
-            
-            registrar_presenca(match_aluno)
-            
-            if match_aluno:
-                print(f"[STATUS CICLO {ciclo}]: Presença confirmada.")
-            else:
-                print(f"[STATUS CICLO {ciclo}]: Presença NÃO confirmada ou rosto ausente.")
-                
-        else:
-            print("Ciclo abortado devido a erro na captura.")
-            
-        print(f"Ciclo {ciclo} finalizado. Aguardando próximo intervalo...")
-        print("-" * 40)
+while True:
+    print("[SISTEMA]: Abrindo interface de aviso...")
+    app = AppAssiduidade()
+    app.mainloop()
+
+    if executar_captura():
         
-        ciclo += 1
-        time.sleep(INTERVALO_SEGUNDOS)
+        resultado = executar_reconhecimento()
+        
+        if not resultado:
+            print("[ALERTA]: Rosto não detectado ou diferente. Abrindo aviso...")
+            aviso_app = AppAssiduidade() 
+            aviso_app.mostrar_aviso_ausencia()
+  
+        registrar_presenca(resultado)
+        
+        atual = "Cadastro/captura_atual.jpg"
+        passada = "Cadastro/captura_passada.jpg"
+        
+        if os.path.exists(atual):
+            shutil.copy(atual, passada)
+            print("[SISTEMA]: Foto atualizada para a próxima comparação.")
+    else:
+        print("[ERRO]: Câmera não encontrada.")
+        app_erro = AppAssiduidade()
+        app_erro.mostrar_avilo_ausencia()
 
-except KeyboardInterrupt:
-    print("\n Sistema EAD encerrado pelo usuário.")
+    print(f"Aguardando {INTERVALO_MINUTOS} minutos para o próximo ciclo...")
+    time.sleep(INTERVALO_MINUTOS * 60)
