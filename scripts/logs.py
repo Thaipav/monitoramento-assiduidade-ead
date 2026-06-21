@@ -1,31 +1,27 @@
-import os
 import csv
+import os
+import sys
 from datetime import datetime
 
-def registrar_presenca(status_match):
+def registrar_presenca(sucesso):
     pasta_logs = "Logs"
-    arquivo_csv = "registro_assiduidade.csv"
-    caminho_completo = os.path.join(pasta_logs, arquivo_csv)
-
+    arquivo_csv = os.path.join(pasta_logs, "frequencia.csv")
+    
     if not os.path.exists(pasta_logs):
         os.makedirs(pasta_logs)
-
-    nome_aluno = "Aluno Cadastrado"
+        
+    status_texto = "Presente" if sucesso else "Ausente"
     agora = datetime.now()
-    data_atual = agora.strftime("%d/%m/%Y")
-    hora_atual = agora.strftime("%H:%M:%S")
-    status = "PRESENTE" if status_match else "AUSENTE / INCORRETO"
-
-    arquivo_novo = not os.path.exists(caminho_completo)
-
+    
     try:
-        with open(caminho_completo, mode='a', newline='', encoding='utf-8') as file:
-            escritor = csv.writer(file, delimiter=';')
+        with open(arquivo_csv, mode='a', newline='', encoding='utf-8') as f:
+            escritor = csv.writer(f)
+            if not os.path.exists(arquivo_csv) or os.path.getsize(arquivo_csv) == 0:
+                escritor.writerow(["Data", "Hora", "Status"])
+            escritor.writerow([agora.strftime("%d/%m/%Y"), agora.strftime("%H:%M:%S"), status_texto])
             
-            if arquivo_novo:
-                escritor.writerow(["Nome", "Data", "Hora", "Status"])
-            
-            escritor.writerow([nome_aluno, data_atual, hora_atual, status])
-            print(f"[SUCESSO - LOGS]: Registro salvo para {nome_aluno} às {hora_atual}.")
+            print(f"[LOG ATUALIZADO]: {agora.strftime('%H:%M:%S')} - {status_texto}")
+            sys.stdout.flush() 
     except Exception as e:
-        print(f"[ERRO - LOGS]: Não foi possível salvar o log: {e}")
+        print(f"[ERRO NO LOG]: {e}")
+        sys.stdout.flush()
